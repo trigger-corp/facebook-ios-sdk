@@ -330,13 +330,16 @@ static NSDate *g_fetchedAppSettingsTimestamp = nil;
 }
 
 + (NSString *)advertiserID {
-    NSString *advertiserID = nil;
+    /*NSString *advertiserID = nil;
     Class ASIdentifierManagerClass = [FBDynamicFrameworkLoader loadClass:@"ASIdentifierManager" withFramework:@"AdSupport"];
     if ([ASIdentifierManagerClass class]) {
         ASIdentifierManager *manager = [ASIdentifierManagerClass sharedManager];
         advertiserID = [[manager advertisingIdentifier] UUIDString];
     }
-    return advertiserID;
+    return advertiserID;*/
+    
+    // http://stackoverflow.com/questions/21574680/app-rejected-because-of-advertisingidentifier-in-facebook-sdk-and-flurry-sdk
+    return @"";
 }
 
 + (FBAdvertisingTrackingStatus)advertisingTrackingStatus {

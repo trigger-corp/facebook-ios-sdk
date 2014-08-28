@@ -79,7 +79,7 @@ typedef void (^kvo_handler_block)(NSString *keyPath, id object, NSDictionary *ch
 
     FBAccessTokenData *cachedToken = [cachingStrategy fetchFBAccessTokenData];
 
-    XCTAssertEqual(randomToken.accessToken, cachedToken.accessToken, @"accessToken does not match");
+    XCTAssertEqualObjects(randomToken.accessToken, cachedToken.accessToken, @"accessToken does not match");
     XCTAssertEqual(randomToken.loginType, cachedToken.loginType, @"loginType does not match");
     XCTAssertTrue([randomToken.permissions isEqualToArray:cachedToken.permissions], @"permissions does not match");
     XCTAssertTrue([randomToken.expirationDate isEqualToDate:cachedToken.expirationDate], @"expirationDate does not match");
@@ -104,6 +104,7 @@ typedef void (^kvo_handler_block)(NSString *keyPath, id object, NSDictionary *ch
                                  FBTokenInformationLoginTypeLoginKey : [NSNumber numberWithInt:FBSessionLoginTypeFacebookViaSafari],
                                  FBTokenInformationRefreshDateKey : [NSDate dateWithTimeIntervalSince1970:1356998400],
                                  FBTokenInformationPermissionsRefreshDateKey : [NSDate dateWithTimeIntervalSince1970:1356998401],
+                                 FBTokenInformationAppIDKey : @"appid"
                                  };
 
     FBAccessTokenData *randomToken = [FBAccessTokenData createTokenFromDictionary:dictionary];
@@ -135,8 +136,8 @@ typedef void (^kvo_handler_block)(NSString *keyPath, id object, NSDictionary *ch
                                  FBTokenInformationExpirationDateKey : [NSDate dateWithTimeIntervalSince1970:1893456000],
                                  FBTokenInformationPermissionsKey : expectedPermissions,
                                  FBTokenInformationIsFacebookLoginKey : [NSNumber numberWithBool:YES],
-                                 FBTokenInformationRefreshDateKey : [NSDate dateWithTimeIntervalSince1970:1356998400]
-                                 };
+                                 FBTokenInformationRefreshDateKey : [NSDate dateWithTimeIntervalSince1970:1356998400],
+                                 FBTokenInformationAppIDKey : @"appid"};
 
     FBAccessTokenData *randomToken = [FBAccessTokenData createTokenFromDictionary:dictionary];
     FBSessionTokenCachingStrategy *cachingStrategy = [FBSessionTokenCachingStrategy defaultInstance];
@@ -183,7 +184,9 @@ typedef void (^kvo_handler_block)(NSString *keyPath, id object, NSDictionary *ch
                                                                   permissions:[NSArray arrayWithObjects:@"perm1", @"perm2", nil]
                                                                expirationDate:date
                                                                     loginType:FBSessionLoginTypeFacebookViaSafari
-                                                                  refreshDate:nil];
+                                                                  refreshDate:nil
+                                                       permissionsRefreshDate:nil
+                                                                        appID:@"appid"];
     FBSessionTokenCachingStrategy *cachingStrategy = [FBSessionTokenCachingStrategy defaultInstance];
     [cachingStrategy cacheFBAccessTokenData:randomToken];
 
@@ -329,7 +332,7 @@ typedef void (^kvo_handler_block)(NSString *keyPath, id object, NSDictionary *ch
     [target openWithCompletionHandler:^(FBSession *session, FBSessionState status, NSError *error) {
         [blocker signal];
     }];
-    [blocker wait];
+    XCTAssertTrue([blocker waitWithTimeout:30], @"blocker timed out");
     XCTAssertTrue(target.isOpen, @"Session should be open, and is not");
     XCTAssertTrue([expectedKvoValuesForOpening count] == 0, @"There were still expected KVO events that did not occur: %@", expectedKvoValuesForOpening);
 
@@ -339,7 +342,7 @@ typedef void (^kvo_handler_block)(NSString *keyPath, id object, NSDictionary *ch
         XCTAssertNil(error, @"unexpected error for new permissions:%@", error);
         [blocker signal];
     }];
-    [blocker wait];
+    XCTAssertTrue([blocker waitWithTimeout:30], @"blocker timed out");
     XCTAssertTrue([expectedKvoValuesForNewPermissions count] == 0, @"There were still expected KVO events that did not occur: %@", expectedKvoValuesForNewPermissions);
 
     // Now we close the session and verify the kvo again.

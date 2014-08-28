@@ -50,6 +50,9 @@ FBSDK_EXTERN NSString *const FBAppEventNameUserSettingsUsage;
 /*! String parameter specifying the outcome of a dialog invocation */
 FBSDK_EXTERN NSString *const FBAppEventParameterDialogOutcome;
 
+/*! Parameter key used to specify which application launches this application. */
+FBSDK_EXTERN NSString *const FBAppEventParameterLaunchSource;
+
 /*! Use to log the result of a call to FBDialogs presentShareDialogWithParams: */
 FBSDK_EXTERN NSString *const FBAppEventNameFBDialogsPresentShareDialog;
 
@@ -106,14 +109,14 @@ FBSDK_EXTERN NSString *const FBAppEventNameFBLikeControlError;
 FBSDK_EXTERN NSString *const FBAppEventNameFBLikeControlImpression;
 FBSDK_EXTERN NSString *const FBAppEventNameFBLikeControlNetworkUnavailable;
 
-typedef enum {
+typedef NS_ENUM(NSUInteger, FBAppEventsFlushReason) {
     FBAppEventsFlushReasonExplicit,
     FBAppEventsFlushReasonTimer,
     FBAppEventsFlushReasonSessionChange,
     FBAppEventsFlushReasonPersistedEvents,
     FBAppEventsFlushReasonEventThreshold,
     FBAppEventsFlushReasonEagerlyFlushingEvent
-} FBAppEventsFlushReason;
+};
 
 @interface FBAppEvents (Internal)
 
@@ -135,6 +138,15 @@ typedef enum {
                    session:(FBSession *)session;
 
 - (void)instanceFlush:(FBAppEventsFlushReason)flushReason;
+
++ (long)unixTimeNow;
++ (void)ensureOnMainThread;
++ (NSString *)persistenceLibraryFilePath:(NSString *)filename;
++ (void)setSourceApplication:(NSString *)sourceApplication openURL:(NSURL *)url;
++ (void)setSourceApplication:(NSString *)sourceApp isAppLink:(BOOL)isAppLink;
++ (void)resetSourceApplication;
++ (NSString *)getSourceApplication;
++ (void)registerAutoResetSourceApplication;
 
 // *** end ***
 

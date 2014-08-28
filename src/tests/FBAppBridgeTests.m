@@ -76,6 +76,7 @@ static NSString *const kNonAppBridgeAppCallURL = @"fb123456789://link?meal=Chick
     }
 }
 - (void)setUp {
+    [super setUp];
     // FBAppBridge relies on UIApplication for handling URLs; mock it and return
     // the mock from [UIApplication sharedApplication]. This little dance is necessary to avoid
     // a circular reference that keeps the class method from being unmocked.
@@ -93,6 +94,7 @@ static NSString *const kNonAppBridgeAppCallURL = @"fb123456789://link?meal=Chick
     BOOL yes = YES;
     [[[_mockFBUtility stub] andReturnValue:OCMOCK_VALUE(yes)]
         isRegisteredURLScheme:kTestURLScheme];
+    [[_mockApplication stub] keyWindow];
 }
 
 - (void)tearDown {
@@ -101,6 +103,7 @@ static NSString *const kNonAppBridgeAppCallURL = @"fb123456789://link?meal=Chick
     _anotherMockApplication = nil;
     _mockFBSettings = nil;
     _mockFBUtility = nil;
+    [super tearDown];
 }
 
 - (FBAppCall *)newAppCall:(BOOL)withDialogsData {
